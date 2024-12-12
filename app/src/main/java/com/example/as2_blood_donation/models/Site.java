@@ -8,9 +8,8 @@ public class Site {
     private double latitude;
     private double longitude;
 
-    public Site(String name, String map_marker, String city, String street, double latitude, double longitude) {
+    public Site(String name, String city, String street, double latitude, double longitude) {
         this.name = name;
-        this.map_marker = map_marker;
         this.city = city;
         this.street = street;
         this.latitude = latitude;

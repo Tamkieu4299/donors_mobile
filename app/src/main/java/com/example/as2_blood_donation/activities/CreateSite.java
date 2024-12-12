@@ -21,7 +21,7 @@ import retrofit2.Response;
 
 public class CreateSite extends AppCompatActivity {
 
-    private EditText inputSiteName, inputSiteAddress, inputLatitude, inputLongitude;
+    private EditText inputSiteName, inputSiteCity,inputSiteStreet, inputLatitude, inputLongitude;
     private ApiService apiService;
 
     @Override
@@ -33,7 +33,8 @@ public class CreateSite extends AppCompatActivity {
         apiService = ApiClient.getApiClient().create(ApiService.class);
 
         inputSiteName = findViewById(R.id.inputSiteName);
-        inputSiteAddress = findViewById(R.id.inputSiteAddress);
+        inputSiteCity= findViewById(R.id.inputSiteCity);
+        inputSiteStreet= findViewById(R.id.inputSiteStreet);
         inputLatitude = findViewById(R.id.inputLatitude);
         inputLongitude = findViewById(R.id.inputLongitude);
 
@@ -49,11 +50,12 @@ public class CreateSite extends AppCompatActivity {
 
     private void handleSubmit() {
         String siteName = inputSiteName.getText().toString().trim();
-        String siteAddress = inputSiteAddress.getText().toString().trim();
+        String siteStreet = inputSiteStreet.getText().toString().trim();
+        String siteCity = inputSiteCity.getText().toString().trim();
         String latitudeStr = inputLatitude.getText().toString().trim();
         String longitudeStr = inputLongitude.getText().toString().trim();
 
-        if (siteName.isEmpty() || siteAddress.isEmpty() || latitudeStr.isEmpty() || longitudeStr.isEmpty()) {
+        if (siteName.isEmpty() || siteStreet.isEmpty() || siteCity.isEmpty() || latitudeStr.isEmpty() || longitudeStr.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -70,9 +72,8 @@ public class CreateSite extends AppCompatActivity {
         // Create Site object
         Site newSite = new Site(
                 siteName,
-                "", // Placeholder for map marker (if applicable)
-                siteAddress, // Assuming the address is the city
-                siteAddress, // Assuming the address is the street
+                siteCity,
+                siteStreet,
                 latitude,
                 longitude
         );
