@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">AS2_Blood_Donation</string>
+    <string name="google_maps_key">AIzaSyAmYG0ewlmb4zaJAkC6pBsFjqi0NBQu-Po</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string-array name="blood_types">
+        <item>O</item>
+        <item>A</item>
+        <item>B</item>
+        <item>AB</item>
+    </string-array>
+    <string name="title_activity_manage_sites">ManageSites</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string-array name="site_names">
+        <item>Red Cross Blood Center</item>
+        <item>LifeBlood Donation Center</item>
+        <item>Community Health Blood Bank</item>
+        <item>National Blood Services</item>
+        <item>Hope Blood Center</item>
+    </string-array>
+    <string-array name="site_addresses">
+        <item>123 Red Cross Lane, Springfield</item>
+        <item>456 Life Street, Downtown</item>
+        <item>789 Community Blvd, Uptown</item>
+        <item>101 National Ave, Capital City</item>
+        <item>202 Hope Way, Greenfield</item>
+    </string-array>
+    <string-array name="site_latitudes">
+        <item>37.7749</item>
+        <item>34.0522</item>
+        <item>40.7128</item>
+        <item>38.9072</item>
+        <item>36.7783</item>
+    </string-array>
+    <string-array name="site_longitudes">
+        <item>-122.4194</item>
+        <item>-118.2437</item>
+        <item>-74.0060</item>
+        <item>-77.0369</item>
+        <item>-119.4179</item>
+    </string-array>
+    <string-array name="donor_names">
+        <item>John Doe</item>
+        <item>Jane Smith</item>
+        <item>Alice Johnson</item>
+    </string-array>
+    <string-array name="donor_blood_types">
+        <item>O</item>
+        <item>A</item>
+        <item>B</item>
+    </string-array>
+
+    <string-array name="donor_emails">
+        <item>john@example.com</item>
+        <item>jane@example.com</item>
+        <item>alice@example.com</item>
+    </string-array>
+</resources>
