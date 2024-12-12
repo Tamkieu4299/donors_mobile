@@ -35,12 +35,13 @@ public class DonationSiteAdapter extends RecyclerView.Adapter<DonationSiteAdapte
         return new DonationSiteAdapter.DonationSiteViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DonationSiteAdapter.DonationSiteViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.nameText.setText(donationSites.get(position).getName());
         holder.latText.setText(String.valueOf(donationSites.get(position).getLatitude()));
-        holder.longText.setText(String.valueOf(donationSites.get(position).getLongitude()));
-        holder.addressText.setText(donationSites.get(position).getAddress());
+        holder.longText.setText(String.valueOf(donationSites.get(position).getLongtitude()));
+        holder.addressText.setText(donationSites.get(position).getStreet() + ", " + donationSites.get(position).getCity());
 
         holder.moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
