@@ -119,7 +119,7 @@ public class ManageSites extends AppCompatActivity {
             public void onResponse(Call<ApiResponse<DonationSite>> call, Response<ApiResponse<DonationSite>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     donationSites.clear();
-                    donationSites.addAll(response.body().getData()); // Extract the "data" array
+                    donationSites.addAll((ArrayList<DonationSite>) response.body().getData()); // Extract the "data" array
                     adapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(ManageSites.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();

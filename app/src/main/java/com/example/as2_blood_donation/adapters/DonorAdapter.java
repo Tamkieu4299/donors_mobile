@@ -34,7 +34,6 @@ public class DonorAdapter extends RecyclerView.Adapter<DonorAdapter.DonorViewHol
     public void onBindViewHolder(@NonNull DonorViewHolder holder, int position) {
         Donor donor = donors.get(position);
         holder.nameTextView.setText(donor.getName());
-        holder.bloodTypeTextView.setText(donor.getBloodType().toString());
         holder.emailTextView.setText(donor.getEmail());
 
     }
@@ -45,12 +44,11 @@ public class DonorAdapter extends RecyclerView.Adapter<DonorAdapter.DonorViewHol
     }
 
     public static class DonorViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView, bloodTypeTextView, emailTextView;
+        TextView nameTextView, emailTextView;
 
         public DonorViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.donorNameText);
-            bloodTypeTextView = itemView.findViewById(R.id.donorBloodTypeText);
             emailTextView = itemView.findViewById(R.id.donorEmailText);
         }
     }

@@ -3,11 +3,13 @@ package com.example.as2_blood_donation.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,20 +40,24 @@ public class DonationSiteAdapter extends RecyclerView.Adapter<DonationSiteAdapte
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DonationSiteAdapter.DonationSiteViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.nameText.setText(donationSites.get(position).getName());
-        holder.latText.setText(String.valueOf(donationSites.get(position).getLatitude()));
-        holder.longText.setText(String.valueOf(donationSites.get(position).getLongtitude()));
-        holder.addressText.setText(donationSites.get(position).getStreet() + ", " + donationSites.get(position).getCity());
+        DonationSite site = donationSites.get(position);
 
-        holder.moreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, SiteDetail.class);
-                intent.putExtra("siteID", donationSites.get(position).getId());
-                context.startActivity(intent);
-            }
+        holder.nameText.setText(site.getName());
+        holder.latText.setText(String.valueOf(site.getLatitude()));
+        holder.longText.setText(String.valueOf(site.getLongtitude()));
+        holder.addressText.setText(site.getStreet() + ", " + site.getCity());
+
+        /// Log siteId
+        int siteId = site.getId();
+        Log.d("DonationSiteAdapter", "Passing siteId: " + siteId);
+
+        holder.moreButton.setOnClickListener(view -> {
+            Intent intent = new Intent(context, SiteDetail.class);
+            intent.putExtra("siteID", siteId); // Pass the siteId directly
+            context.startActivity(intent);
         });
     }
+
 
     @Override
     public int getItemCount() {

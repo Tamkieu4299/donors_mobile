@@ -14,6 +14,7 @@ import com.example.as2_blood_donation.R;
 import com.example.as2_blood_donation.api.ApiClient;
 import com.example.as2_blood_donation.api.ApiService;
 import com.example.as2_blood_donation.models.Site;
+import com.example.as2_blood_donation.models.SiteCreate;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,7 +71,7 @@ public class CreateSite extends AppCompatActivity {
         }
 
         // Create Site object
-        Site newSite = new Site(
+        SiteCreate newSite = new SiteCreate(
                 siteName,
                 siteCity,
                 siteStreet,
