@@ -12,8 +12,8 @@ import java.util.Set;
 public class SiteManager extends User {
     private Set<String> managingSites;
 
-    public SiteManager(String name, String email, String password, UserRole role, Set<String> managingSites) {
-        super(name, email, password, role);
+    public SiteManager(String firstName, String lastName,  String email, String password, UserRole role, Set<String> managingSites) {
+        super(firstName, lastName, email, password, role);
         this.managingSites = managingSites;
     }
 

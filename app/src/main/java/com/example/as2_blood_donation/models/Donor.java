@@ -10,19 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Donor extends User {
-    private BloodType bloodType;
 
-    public Donor(String id, String name, String email, String password, BloodType bloodType) {
-        super(id, name, email, password, UserRole.DONOR);
-        this.bloodType = bloodType;
-    }
-
-    public BloodType getBloodType() {
-        return bloodType;
-    }
-
-    public void setBloodType(BloodType bloodType) {
-        this.bloodType = bloodType;
+    public Donor(String id, String firstName, String lastName, String email, String password, String type_of_blood) {
+        super(id, firstName, lastName, email, password, UserRole.DONOR, type_of_blood);
     }
 
     public static void saveDonor(Donor donor) {

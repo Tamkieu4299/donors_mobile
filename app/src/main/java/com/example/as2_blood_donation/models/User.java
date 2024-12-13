@@ -11,22 +11,30 @@ import java.util.Map;
 
 public abstract class User {
     private String id;
-    private String name;
     private String email;
     private String password;
     private UserRole role;
+    private String first_name;
+    private String last_name;
+    private String name = "";
+    private String type_of_blood = "Unknown";
 
-    public User(String id, String name, String email, String password, UserRole role) {
+    public User(String id, String firstName, String lastName, String email, String password, UserRole role, String type_of_blood) {
         this.id = id;
-        this.name = name;
+        this.name = firstName + " " + lastName;
+        this.first_name = firstName;
+        this.last_name = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.type_of_blood = type_of_blood;
     }
 
-    public User(String name, String email, String password, UserRole role) {
+    public User(String firstName, String lastName, String email, String password, UserRole role) {
         this.id = IDUtils.generateRandomId();
-        this.name = name;
+        this.name = firstName + " " + lastName;
+        this.first_name = firstName;
+        this.last_name = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -42,6 +50,17 @@ public abstract class User {
 
     public String getName() {
         return name;
+    }
+
+    public String getFirstName() {
+        return first_name;
+    }
+
+    public String getLastName() {
+        return last_name;
+    }
+    public String getBloodType() {
+        return type_of_blood;
     }
 
     public void setName(String name) {

@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SuperUser extends User {
-    public SuperUser(String name, String email, String password, UserRole role) {
-        super(name, email, password, role);
+    public SuperUser(String firstName, String lastName, String email, String password, UserRole role) {
+        super(firstName, lastName, email, password, role);
     }
     public static void saveSuperUser(SuperUser superUser) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

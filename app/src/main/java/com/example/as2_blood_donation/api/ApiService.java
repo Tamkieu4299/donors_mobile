@@ -23,4 +23,7 @@ public interface ApiService {
     @GET("/api/v1/site/search/{id}")
     Call<ApiResponseObject<Site>> getSiteDetails(@Path("id") int siteId);
 
+    @GET("/api/v1/donation/search_by_site/{id}")
+    Call<ApiResponse<Site>> getDonationBySite(@Path("id") int siteId);
+
 }

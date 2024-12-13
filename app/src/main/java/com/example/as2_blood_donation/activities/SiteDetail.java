@@ -17,10 +17,13 @@ import com.example.as2_blood_donation.api.ApiClient;
 import com.example.as2_blood_donation.api.ApiService;
 import com.example.as2_blood_donation.models.ApiResponse;
 import com.example.as2_blood_donation.models.ApiResponseObject;
+import com.example.as2_blood_donation.models.Donation;
 import com.example.as2_blood_donation.models.Donor;
 import com.example.as2_blood_donation.models.Site;
+import com.example.as2_blood_donation.models.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,6 +79,7 @@ public class SiteDetail extends AppCompatActivity {
                     ApiResponseObject<Site> apiResponse = response.body();
                     if ("success".equals(apiResponse.getStatus()) && apiResponse.getData() != null) {
                         Site site = apiResponse.getData();
+                        Log.d("API Response", "Site: " + site.getName() + ", Donations: " + site.getDonations());
                         populateSiteDetails(site);
                     } else {
                         Toast.makeText(SiteDetail.this, "Failed to fetch site details", Toast.LENGTH_SHORT).show();
@@ -102,9 +106,21 @@ public class SiteDetail extends AppCompatActivity {
                         "\nBlood Amount: " + site.getAmountOfBlood() + " units"
         );
 
-        // Populate dummy donor list for now
-        donors.add(new Donor("1", "John Doe", "john@example.com", "password123", null));
-        donors.add(new Donor("2", "Jane Smith", "jane@example.com", "password123", null));
-        donorAdapter.notifyDataSetChanged();
+        // Handle donations
+        if (site.getDonations() != null && !site.getDonations().isEmpty()) {
+            donors.clear();
+            Log.d("SiteDetail", "Total donors fetched: " + site.getDonations().size());
+            for (Donor donor : site.getDonations()) {
+                if (donor != null) {
+                    Log.d("Donor Details", "Name: " + donor.getName() + ", Email: " + donor.getEmail() + ", blood: " + donor.getBloodType());
+                    donors.add(donor);
+                } else {
+                    Log.w("SiteDetail", "Donor is null");
+                }
+            }
+            donorAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(this, "No donations available for this site", Toast.LENGTH_SHORT).show();
+        }
     }
 }

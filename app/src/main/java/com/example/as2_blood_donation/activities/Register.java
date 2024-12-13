@@ -69,7 +69,7 @@ public class Register extends AppCompatActivity {
                 } else if (!passwordText.equals(confirmPasswordText)) {
                     Toast.makeText(Register.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 } else {
-                    registerUser(emailText, passwordText, fullNameText, BloodType.valueOf(bloodTypeText));
+                    registerUser(emailText, passwordText, fullNameText, bloodTypeText);
                 }
             }
         });
@@ -82,7 +82,7 @@ public class Register extends AppCompatActivity {
             }
         });
     }
-    private void registerUser(String email, String password, String name, BloodType bloodType) {
+    private void registerUser(String email, String password, String name, String bloodType) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -90,7 +90,7 @@ public class Register extends AppCompatActivity {
 
                         if (user != null) {
                             String uID = user.getUid();
-                            Donor donorDocument = new Donor(uID, name, email, password, bloodType);
+                            Donor donorDocument = new Donor(uID, name, name, email, password, bloodType);
 
                             // Save Donor to Firestore
                             db.collection("donors").document(uID)

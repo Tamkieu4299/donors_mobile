@@ -1,5 +1,6 @@
 package com.example.as2_blood_donation.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +31,13 @@ public class DonorAdapter extends RecyclerView.Adapter<DonorAdapter.DonorViewHol
         return new DonorViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DonorViewHolder holder, int position) {
         Donor donor = donors.get(position);
-        holder.nameTextView.setText(donor.getName());
+        holder.nameTextView.setText(donor.getFirstName() + " " + donor.getLastName());
         holder.emailTextView.setText(donor.getEmail());
-
+        holder.bloodTypeTextView.setText(donor.getBloodType());
     }
 
     @Override
@@ -44,12 +46,13 @@ public class DonorAdapter extends RecyclerView.Adapter<DonorAdapter.DonorViewHol
     }
 
     public static class DonorViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView, emailTextView;
+        TextView nameTextView, emailTextView, bloodTypeTextView;
 
         public DonorViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.donorNameText);
             emailTextView = itemView.findViewById(R.id.donorEmailText);
+            bloodTypeTextView = itemView.findViewById(R.id.donorBloodTypeText);
         }
     }
 }
