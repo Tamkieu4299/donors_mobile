@@ -9,8 +9,8 @@ public class UserSession {
     private static UserSession instance;
     private int id;
     private String userName;
-    private String firstName;
-    private String lastName;
+    private String first_name;
+    private String last_name;
     private String phone;
     private String email;
     private String token;
@@ -47,19 +47,19 @@ public class UserSession {
     }
 
     public String getFirstName() {
-        return firstName;
+        return first_name;
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.first_name = firstName;
     }
 
     public String getLastName() {
-        return lastName;
+        return last_name;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.last_name = lastName;
     }
 
     public String getPhone() {
@@ -122,8 +122,8 @@ public class UserSession {
     public void populateFromLoginResponse(UserSession session) {
         this.id = session.getId();
         this.userName = session.getUserName();
-        this.firstName = session.getFirstName();
-        this.lastName = session.getLastName();
+        this.first_name = session.getFirstName();
+        this.last_name = session.getLastName();
         this.phone = session.getPhone();
         this.email = session.getEmail();
         this.token = session.getToken();
@@ -137,8 +137,8 @@ public class UserSession {
     public void clearSession() {
         id = 0;
         userName = null;
-        firstName = null;
-        lastName = null;
+        first_name = null;
+        last_name = null;
         phone = null;
         email = null;
         token = null;
@@ -153,8 +153,8 @@ public class UserSession {
         return "UserSession{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", firstName='" + first_name + '\'' +
+                ", lastName='" + last_name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 ", token='" + token + '\'' +
