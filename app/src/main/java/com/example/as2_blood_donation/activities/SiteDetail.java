@@ -3,6 +3,7 @@ package com.example.as2_blood_donation.activities;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,9 +22,12 @@ import com.example.as2_blood_donation.models.Donation;
 import com.example.as2_blood_donation.models.Donor;
 import com.example.as2_blood_donation.models.Site;
 import com.example.as2_blood_donation.models.User;
+import com.example.as2_blood_donation.models.UserSession;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,6 +71,10 @@ public class SiteDetail extends AppCompatActivity {
 
         // Fetch site details
         fetchSiteDetails();
+
+        // Volunteer Button functionality
+        Button volunteerButton = findViewById(R.id.volunteerButton);
+        volunteerButton.setOnClickListener(v -> registerAsVolunteer());
     }
 
     private void fetchSiteDetails() {
@@ -122,5 +130,45 @@ public class SiteDetail extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No donations available for this site", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Method to register as a volunteer
+    private void registerAsVolunteer() {
+        ApiService apiService = ApiClient.getApiClient().create(ApiService.class);
+
+        // Get user_id from UserSession
+        int userId = UserSession.getInstance().getId();
+        if (userId <= 0 || siteId <= 0) {
+            Toast.makeText(this, "Invalid User or Site ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Prepare the request body
+        Map<String, Integer> requestBody = new HashMap<>();
+        requestBody.put("user_id", userId);
+        requestBody.put("site_id", siteId);
+
+        // Make the API call
+        apiService.registerVolunteer(requestBody).enqueue(new Callback<ApiResponseObject<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponseObject<Void>> call, Response<ApiResponseObject<Void>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponseObject<Void> apiResponse = response.body();
+                    if ("success".equals(apiResponse.getStatus())) {
+                        Toast.makeText(SiteDetail.this, "Successfully registered as a volunteer!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SiteDetail.this, "Registration failed. Try again.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(SiteDetail.this, "Failed to register. Server error.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseObject<Void>> call, Throwable t) {
+                Toast.makeText(SiteDetail.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("Volunteer API Error", t.getMessage(), t);
+            }
+        });
     }
 }

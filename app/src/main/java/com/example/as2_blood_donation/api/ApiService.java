@@ -9,6 +9,8 @@ import com.example.as2_blood_donation.models.SiteCreate;
 import com.example.as2_blood_donation.models.UserSession;
 
 import java.util.ArrayList;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;
@@ -32,6 +34,10 @@ public interface ApiService {
     @POST("/api/v1/auth/token")
     @Headers("Content-Type: application/json")
     Call<ApiResponseObject<UserSession>> login(@Body LoginRequest loginRequest);
+
+    @POST("/api/v1/donation/register")
+    Call<ApiResponseObject<Void>> registerVolunteer(@Body Map<String, Integer> requestBody);
+
 
 
 }
