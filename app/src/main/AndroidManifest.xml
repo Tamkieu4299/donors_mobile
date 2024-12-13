@@ -18,6 +18,14 @@
         android:theme="@style/Theme.AS2_Blood_Donation"
         tools:targetApi="31">
         <activity
+            android:name=".activities.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activities.CreateSite"
             android:exported="false" />
         <activity

@@ -2,13 +2,16 @@ package com.example.as2_blood_donation.api;
 
 import com.example.as2_blood_donation.models.ApiResponseObject;
 import com.example.as2_blood_donation.models.DonationSite;
+import com.example.as2_blood_donation.models.LoginRequest;
 import com.example.as2_blood_donation.models.Site;
 import com.example.as2_blood_donation.models.ApiResponse;
 import com.example.as2_blood_donation.models.SiteCreate;
+import com.example.as2_blood_donation.models.UserSession;
 
 import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -25,5 +28,10 @@ public interface ApiService {
 
     @GET("/api/v1/donation/search_by_site/{id}")
     Call<ApiResponse<Site>> getDonationBySite(@Path("id") int siteId);
+
+    @POST("/api/v1/auth/token")
+    @Headers("Content-Type: application/json")
+    Call<ApiResponseObject<UserSession>> login(@Body LoginRequest loginRequest);
+
 
 }
