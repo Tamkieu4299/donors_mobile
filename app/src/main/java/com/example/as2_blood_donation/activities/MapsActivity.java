@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -28,7 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
+import com.example.as2_blood_donation.models.ApiResponseObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +64,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             searchSiteByName();
             return true; // Consume the event
         });
+
+        // Button to find nearest site
+        Button findNearestSiteButton = findViewById(R.id.findNearestSiteButton);
+        findNearestSiteButton.setOnClickListener(view -> findNearestSite());
 
         // Search Button
         ImageButton searchButton = findViewById(R.id.searchButton);
@@ -180,6 +185,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         Toast.makeText(this, "No site found with name: " + searchQuery, Toast.LENGTH_SHORT).show();
+    }
+
+    private void findNearestSite() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location permissions are required to use this feature.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                double userLat = location.getLatitude();
+                double userLng = location.getLongitude();
+
+                // Call API to fetch nearest site
+                apiService.getNearestSite(userLat, userLng).enqueue(new Callback<ApiResponseObject<DonationSite>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponseObject<DonationSite>> call, Response<ApiResponseObject<DonationSite>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            DonationSite nearestSite = response.body().getData();
+                            if (nearestSite != null) {
+                                LatLng nearestSiteLatLng = new LatLng(nearestSite.getLatitude(), nearestSite.getLongtitude());
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nearestSiteLatLng, 15));
+                                Toast.makeText(MapsActivity.this, "Nearest Site: " + nearestSite.getName(), Toast.LENGTH_SHORT).show();
+                                Log.d("MapsActivity", "Site " + nearestSite.getName() + " : " + nearestSite.getLatitude() + ", Longitude: " + nearestSite.getLongtitude());
+                            } else {
+                                Toast.makeText(MapsActivity.this, "No nearest site found.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(MapsActivity.this, "Failed to fetch nearest site.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponseObject<DonationSite>> call, Throwable t) {
+                        Toast.makeText(MapsActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override

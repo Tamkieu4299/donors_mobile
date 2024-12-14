@@ -47,4 +47,10 @@ public interface ApiService {
             @Query("volume_of_blood") int volumeOfBlood
     );
 
+    @GET("/api/v1/map/nearest-site")
+    Call<ApiResponseObject<DonationSite>> getNearestSite(
+            @Query("user_lat") double userLat,
+            @Query("user_lng") double userLng
+    );
+
 }
