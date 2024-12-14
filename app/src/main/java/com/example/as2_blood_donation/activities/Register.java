@@ -90,7 +90,7 @@ public class Register extends AppCompatActivity {
 
                         if (user != null) {
                             String uID = user.getUid();
-                            Donor donorDocument = new Donor(uID, name, name, email, password, bloodType);
+                            Donor donorDocument = new Donor(uID, name, name, email, password, bloodType, false);
 
                             // Save Donor to Firestore
                             db.collection("donors").document(uID)

@@ -1,13 +1,17 @@
 package com.example.as2_blood_donation.activities;
 
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -156,6 +160,7 @@ public class SiteDetail extends AppCompatActivity {
                     ApiResponseObject<Void> apiResponse = response.body();
                     if ("success".equals(apiResponse.getStatus())) {
                         Toast.makeText(SiteDetail.this, "Successfully registered as a volunteer!", Toast.LENGTH_SHORT).show();
+                        fetchSiteDetails();
                     } else {
                         Toast.makeText(SiteDetail.this, "Registration failed. Try again.", Toast.LENGTH_SHORT).show();
                     }
@@ -171,4 +176,57 @@ public class SiteDetail extends AppCompatActivity {
             }
         });
     }
+    public void showApproveDonorDialog(int donorId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Approve Donor");
+
+        // Create an input field for volume of blood
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Enter volume of blood (ml)");
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("Approve", (dialog, which) -> {
+            String volumeInput = input.getText().toString();
+            if (!TextUtils.isEmpty(volumeInput)) {
+                int volumeOfBlood = Integer.parseInt(volumeInput);
+                approveDonor(siteId, donorId, volumeOfBlood);
+            } else {
+                Toast.makeText(SiteDetail.this, "Volume of blood is required", Toast.LENGTH_SHORT).show();
+                showApproveDonorDialog(donorId); // Reopen dialog for input
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void approveDonor(int siteId, int donorId, int volumeOfBlood) {
+        ApiService apiService = ApiClient.getApiClient().create(ApiService.class);
+        apiService.approveDonation(siteId, donorId, volumeOfBlood).enqueue(new Callback<ApiResponseObject<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponseObject<Void>> call, Response<ApiResponseObject<Void>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponseObject<Void> apiResponse = response.body();
+                    if ("success".equals(apiResponse.getStatus())) {
+                        Toast.makeText(SiteDetail.this, "Donor approved successfully!", Toast.LENGTH_SHORT).show();
+                        fetchSiteDetails(); // Refresh the donor list to show updated state
+                    } else {
+                        Toast.makeText(SiteDetail.this, "Failed to approve donor. Try again.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(SiteDetail.this, "Failed to approve donor. Server error.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseObject<Void>> call, Throwable t) {
+                Toast.makeText(SiteDetail.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("Approve Donor API Error", t.getMessage(), t);
+            }
+        });
+    }
+
 }

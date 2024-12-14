@@ -83,43 +83,6 @@
                 android:text="Total Blood Collected: "
                 android:textColor="@color/black" />
 
-            <!-- Update Details Section -->
-            <!-- <TextView
-                android:id="@+id/textView5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Update site details"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/updateTotalBloodCollectedLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="Total Blood Collected"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/updateTotalBloodCollected"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter new total"
-                android:padding="12dp"
-                android:textColor="@color/black"
-                android:inputType="numberDecimal" />
-
-            <Button
-                android:id="@+id/updateDetailsButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Update Details"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/teal_200" /> -->
-
             <!-- Volunteer Section -->
             <Button
                 android:id="@+id/volunteerButton"
