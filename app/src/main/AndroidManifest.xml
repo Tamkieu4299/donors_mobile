@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AS2_Blood_Donation"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true">
@@ -40,10 +43,6 @@
         <activity
             android:name=".activities.Login"
             android:exported="false" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
 
         <activity
             android:name=".activities.MapsActivity"

@@ -102,11 +102,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Button for opening the map
-//        Button buttonMap = findViewById(R.id.buttonMap);
-//        buttonMap.setOnClickListener(view -> {
-//            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-//            startActivity(intent);
-//        });
+        Button buttonMap = findViewById(R.id.buttonViewMap);
+        buttonMap.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+            startActivity(intent);
+        });
 
         // Button for viewing profile
 //        Button buttonProfile = findViewById(R.id.buttonProfile);

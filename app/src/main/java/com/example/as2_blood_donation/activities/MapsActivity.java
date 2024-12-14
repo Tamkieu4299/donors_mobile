@@ -1,18 +1,25 @@
 package com.example.as2_blood_donation.activities;
 
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-import android.annotation.SuppressLint;
-import android.location.Location;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.as2_blood_donation.MainActivity;
 import com.example.as2_blood_donation.R;
+import com.example.as2_blood_donation.api.ApiClient;
+import com.example.as2_blood_donation.api.ApiService;
+import com.example.as2_blood_donation.models.ApiResponse;
+import com.example.as2_blood_donation.models.DonationSite;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,99 +28,174 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private static final long UPDATE_INTERVAL = 10*1000 ;
-    private static final long FASTEST_INTERVAL = 5000 ;
-    protected FusedLocationProviderClient client;
-    protected LocationRequest mLocationRequest;
+
     private GoogleMap mMap;
+    private FusedLocationProviderClient fusedLocationClient;
+    private ApiService apiService;
+    private List<DonationSite> donationSites = new ArrayList<>();
+    private EditText searchSiteEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        SupportMapFragment mapFragment = (SupportMapFragment)
-                getSupportFragmentManager()
-                        .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        // Back Button to return to MainActivity
+        ImageButton buttonBackToMain = findViewById(R.id.buttonBackToMain);
+        buttonBackToMain.setOnClickListener(view -> {
+            Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        // Search Site EditText
+        searchSiteEditText = findViewById(R.id.searchSiteEditText);
+        searchSiteEditText.setOnEditorActionListener((v, actionId, event) -> {
+            searchSiteByName();
+            return true; // Consume the event
+        });
+
+        // Search Button
+        ImageButton searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(view -> searchSiteByName());
+
+        // Initialize FusedLocationProviderClient
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Initialize API service
+        apiService = ApiClient.getApiClient().create(ApiService.class);
+
+        // Set up the Google Map fragment
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
     }
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be
-     prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once
-     the user has
-     * installed Google Play services and returned to the app.
-     */
+
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        requestPermission();
-        client =
-                LocationServices.getFusedLocationProviderClient(MapsActivity.this);
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng rmit = new LatLng(10.73, 106.69);
-        mMap.addMarker(new MarkerOptions().position(rmit).title("RMIT Vietnam"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(rmit));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(rmit, 15));
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
+
+        // Enable location features if permissions are granted
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+            getCurrentLocation();
+        } else {
+            // Request location permissions if not already granted
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, 1);
+        }
+
+        // Fetch and add donation site markers
+        fetchDonationSites();
+    }
+
+    private void fetchDonationSites() {
+        apiService.getDonationSites().enqueue(new Callback<ApiResponse<DonationSite>>() {
             @Override
-            public void onMapClick(LatLng latLng) {
-                mMap.addMarker(new MarkerOptions().position(latLng));
+            public void onResponse(Call<ApiResponse<DonationSite>> call, Response<ApiResponse<DonationSite>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    donationSites = response.body().getData();
+                    if (donationSites != null && !donationSites.isEmpty()) {
+                        addMarkersForDonationSites();
+                    } else {
+                        Toast.makeText(MapsActivity.this, "No donation sites to display.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MapsActivity.this, "Failed to fetch donation sites.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<DonationSite>> call, Throwable t) {
+                Toast.makeText(MapsActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MapsActivity.this, marker.toString(),
-                        Toast.LENGTH_SHORT).show();
-                return false;
+    }
+
+    private void addMarkersForDonationSites() {
+        for (DonationSite site : donationSites) {
+            try {
+                LatLng location = new LatLng(site.getLatitude(), site.getLongtitude());
+
+                Log.d("MapsActivity", "Site " + site.getName() + " : " + site.getLatitude() + ", Longitude: " + site.getLongtitude());
+                mMap.addMarker(new MarkerOptions()
+                        .position(location)
+                        .title(site.getName()));
+            } catch (Exception e) {
+                Toast.makeText(this, "Error adding marker for: " + site.getName(), Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                // Print latitude and longitude
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Toast.makeText(this, "Latitude: " + latitude + ", Longitude: " + longitude, Toast.LENGTH_SHORT).show();
+                Log.d("MapsActivity", "Current Location - Latitude: " + latitude + ", Longitude: " + longitude);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+            } else {
+                Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
-        startLocationUpdate();
     }
-    private void requestPermission(){
-        ActivityCompat.requestPermissions(MapsActivity.this, new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION},
-                MY_PERMISSIONS_REQUEST_LOCATION);
-    }
-    @SuppressLint("MissingPermission")
-    public void getPosition(View view){
-        client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-          @Override
-          public void onSuccess(Location location) {
-              Toast.makeText(MapsActivity.this, location.getLatitude() + "",
-                      Toast.LENGTH_SHORT).show();
-          }
-      });
-    }
-    public void onLocationChanged(Location location){
-        String message = "Updated location " +
-                Double.toString(location.getLatitude()) + ", " +
-                Double.toString(location.getLongitude());
-        LatLng newLoc = new LatLng(location.getLatitude(),
-                location.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(newLoc).title("New Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(newLoc));
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-    @SuppressLint({"MissingPermission", "RestrictedApi"})
-    private void startLocationUpdate(){
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        client.requestLocationUpdates(mLocationRequest, new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult){
-                onLocationChanged(locationResult.getLastLocation());
+
+    private void searchSiteByName() {
+        String searchQuery = searchSiteEditText.getText().toString().trim();
+        if (searchQuery.isEmpty()) {
+            Toast.makeText(this, "Enter a site name to search", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (DonationSite site : donationSites) {
+            if (site.getName().toLowerCase().contains(searchQuery.toLowerCase())) {
+                LatLng siteLatLng = new LatLng(site.getLatitude(), site.getLongtitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(siteLatLng, 15));
+                Toast.makeText(this, "Found: " + site.getName(), Toast.LENGTH_SHORT).show();
+                Log.d("MapsActivity", "Site " + site.getName() + " : " + site.getLatitude() + ", Longitude: " + site.getLongtitude());
+                return;
             }
-        }, null);
+        }
+        Toast.makeText(this, "No site found with name: " + searchQuery, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mMap.setMyLocationEnabled(true);
+                    getCurrentLocation();
+                }
+            } else {
+                Toast.makeText(this, "Location permissions are required to use this feature.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
