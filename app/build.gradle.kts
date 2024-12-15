@@ -56,6 +56,6 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.play.services.location)
-
+    implementation("com.google.maps.android:android-maps-utils:2.2.4")
 
 }

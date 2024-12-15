@@ -3,6 +3,7 @@ package com.example.as2_blood_donation.api;
 import com.example.as2_blood_donation.models.ApiResponseObject;
 import com.example.as2_blood_donation.models.DonationSite;
 import com.example.as2_blood_donation.models.LoginRequest;
+import com.example.as2_blood_donation.models.RouteResponse;
 import com.example.as2_blood_donation.models.Site;
 import com.example.as2_blood_donation.models.ApiResponse;
 import com.example.as2_blood_donation.models.SiteCreate;
@@ -52,5 +53,8 @@ public interface ApiService {
             @Query("user_lat") double userLat,
             @Query("user_lng") double userLng
     );
+
+    @POST("/api/v1/map/get-route")
+    Call<RouteResponse> getRoute(@Body Map<String, Double> requestBody);
 
 }

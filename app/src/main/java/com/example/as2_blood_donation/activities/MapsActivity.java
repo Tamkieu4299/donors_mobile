@@ -3,6 +3,7 @@ package com.example.as2_blood_donation.activities;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -20,6 +22,7 @@ import com.example.as2_blood_donation.api.ApiClient;
 import com.example.as2_blood_donation.api.ApiService;
 import com.example.as2_blood_donation.models.ApiResponse;
 import com.example.as2_blood_donation.models.DonationSite;
+import com.example.as2_blood_donation.models.RouteResponse;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -114,13 +119,83 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(marker -> {
             DonationSite site = markerSiteMap.get(marker); // Retrieve the site associated with the marker
             if (site != null) {
-                navigateToSiteDetail(site.getId()); // Pass the site ID to SiteDetail
+                showMarkerOptionsDialog(site); // Pass the site ID to SiteDetail
                 return true; // Return true to indicate the click has been handled
             }
             return false;
         });
     }
+    private void showMarkerOptionsDialog(DonationSite site) {
+        new AlertDialog.Builder(this)
+                .setTitle(site.getName())
+                .setPositiveButton("View Details", (dialog, which) -> navigateToSiteDetail(site.getId()))
+                .setNegativeButton("Find Path", (dialog, which) -> findRouteToSite(site))
+                .setNeutralButton("Cancel", null)
+                .show();
+    }
 
+    private void findRouteToSite(DonationSite site) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location permissions are required to find routes", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                double userLat = location.getLatitude();
+                double userLng = location.getLongitude();
+
+                // Call the API to get the route
+                fetchRouteFromApi(userLat, userLng, site.getLatitude(), site.getLongtitude());
+            } else {
+                Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error fetching location: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void fetchRouteFromApi(double userLat, double userLng, double destinationLat, double destinationLng) {
+        Map<String, Double> requestBody = new HashMap<>();
+        requestBody.put("user_lat", userLat);
+        requestBody.put("user_lng", userLng);
+        requestBody.put("destination_lat", destinationLat);
+        requestBody.put("destination_lng", destinationLng);
+
+        apiService.getRoute(requestBody).enqueue(new Callback<RouteResponse>() {
+            @Override
+            public void onResponse(Call<RouteResponse> call, Response<RouteResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    drawRoute(response.body().getOverviewPolyline());
+                } else {
+                    Toast.makeText(MapsActivity.this, "Failed to fetch route", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RouteResponse> call, Throwable t) {
+                Toast.makeText(MapsActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void drawRoute(String overviewPolyline) {
+        List<LatLng> routePoints = PolyUtil.decode(overviewPolyline);
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .addAll(routePoints)
+                .width(10)
+                .color(Color.BLUE)
+                .geodesic(true);
+
+        mMap.addPolyline(polylineOptions);
+
+        // Move camera to start of the route
+        if (!routePoints.isEmpty()) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routePoints.get(0), 15));
+        }
+    }
     private void fetchDonationSites() {
         apiService.getDonationSites().enqueue(new Callback<ApiResponse<DonationSite>>() {
             @Override
