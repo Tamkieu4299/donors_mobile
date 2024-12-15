@@ -31,7 +31,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.as2_blood_donation.models.ApiResponseObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ApiService apiService;
     private List<DonationSite> donationSites = new ArrayList<>();
     private EditText searchSiteEditText;
+    private Map<Marker, DonationSite> markerSiteMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +109,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Fetch and add donation site markers
         fetchDonationSites();
+
+        // Set a marker click listener
+        mMap.setOnMarkerClickListener(marker -> {
+            DonationSite site = markerSiteMap.get(marker); // Retrieve the site associated with the marker
+            if (site != null) {
+                navigateToSiteDetail(site.getId()); // Pass the site ID to SiteDetail
+                return true; // Return true to indicate the click has been handled
+            }
+            return false;
+        });
     }
 
     private void fetchDonationSites() {
@@ -137,15 +150,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng location = new LatLng(site.getLatitude(), site.getLongtitude());
 
                 Log.d("MapsActivity", "Site " + site.getName() + " : " + site.getLatitude() + ", Longitude: " + site.getLongtitude());
-                mMap.addMarker(new MarkerOptions()
+                Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(location)
                         .title(site.getName()));
+                markerSiteMap.put(marker, site);
             } catch (Exception e) {
                 Toast.makeText(this, "Error adding marker for: " + site.getName(), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    private void navigateToSiteDetail(int siteId) {
+        Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
+        intent.putExtra("siteID", siteId);
+        startActivity(intent);
+    }
     private void getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
