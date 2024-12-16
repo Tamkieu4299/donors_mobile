@@ -57,4 +57,10 @@ public interface ApiService {
     @POST("/api/v1/map/get-route")
     Call<RouteResponse> getRoute(@Body Map<String, Double> requestBody);
 
+    @POST("/api/v1/site/filter/")
+    Call<ApiResponse<DonationSite>> filterDonationSites(
+            @Query("skip") int skip,
+            @Query("limit") int limit,
+            @Body Map<String, Object> filter
+    );
 }
