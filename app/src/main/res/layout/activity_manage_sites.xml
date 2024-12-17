@@ -56,11 +56,25 @@
             android:orientation="vertical"
             android:padding="8dp">
 
+            <!-- Expand/Collapse Button -->
+            <Button
+                android:id="@+id/toggleFilterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Filters"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/teal_700"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                android:textAllCaps="false"
+                android:layout_marginBottom="8dp" />
+
             <!-- Filter Bar -->
             <LinearLayout
                 android:id="@+id/filterBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:orientation="vertical">
 
                 <!-- Name, City, and Street Filters -->

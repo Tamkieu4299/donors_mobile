@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -57,6 +58,32 @@ public class ManageSites extends AppCompatActivity {
         filterAmountOfBlood = findViewById(R.id.filterAmountOfBlood);
         filterButton = findViewById(R.id.filterButton);
 
+        // Initialize Toggle Button and Filter Bar
+        Button toggleFilterButton = findViewById(R.id.toggleFilterButton);
+        LinearLayout filterBar = findViewById(R.id.filterBar);
+
+        // Set the initial state
+        filterBar.setVisibility(View.GONE);
+        toggleFilterButton.setText("Show Filters");
+
+        // Handle Toggle Button Click
+        toggleFilterButton.setOnClickListener(new View.OnClickListener() {
+            private boolean isFilterVisible = false;
+
+            @Override
+            public void onClick(View v) {
+                if (isFilterVisible) {
+                    // Hide the filter bar
+                    filterBar.setVisibility(View.GONE);
+                    toggleFilterButton.setText("Show Filters");
+                } else {
+                    // Show the filter bar
+                    filterBar.setVisibility(View.VISIBLE);
+                    toggleFilterButton.setText("Hide Filters");
+                }
+                isFilterVisible = !isFilterVisible;
+            }
+        });
 
         // Set up back button
         ImageButton backButton = findViewById(R.id.buttonBack);
