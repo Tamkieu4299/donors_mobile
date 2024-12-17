@@ -120,12 +120,6 @@ public class ManageSites extends AppCompatActivity {
             filterMap.put("amount_of_blood", amountOfBlood);
         }
 
-        // Check if the map is empty
-        if (filterMap.isEmpty()) {
-            Toast.makeText(ManageSites.this, "Please enter at least one filter.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // Make the API call
         apiService.filterDonationSites(0, 10, filterMap).enqueue(new Callback<ApiResponse<DonationSite>>() {
             @Override
@@ -141,6 +135,7 @@ public class ManageSites extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse<DonationSite>> call, Throwable t) {
+                Log.d("here", "Error: " + t.getMessage());
                 Toast.makeText(ManageSites.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
