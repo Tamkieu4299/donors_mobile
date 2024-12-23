@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/purple_500"
+            android:backgroundTint="@color/teal_700"
             android:text="Login"
             android:textColor="@android:color/white" />
 
@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/purple_500"
+            android:backgroundTint="@color/teal_700"
             android:text="Register"
             android:textColor="@android:color/white" />
 
