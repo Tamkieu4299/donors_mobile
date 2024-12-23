@@ -3,10 +3,12 @@ package com.example.as2_blood_donation.api;
 import com.example.as2_blood_donation.models.ApiResponseObject;
 import com.example.as2_blood_donation.models.DonationSite;
 import com.example.as2_blood_donation.models.LoginRequest;
+import com.example.as2_blood_donation.models.RegisterRequest;
 import com.example.as2_blood_donation.models.RouteResponse;
 import com.example.as2_blood_donation.models.Site;
 import com.example.as2_blood_donation.models.ApiResponse;
 import com.example.as2_blood_donation.models.SiteCreate;
+import com.example.as2_blood_donation.models.User;
 import com.example.as2_blood_donation.models.UserSession;
 
 import java.util.ArrayList;
@@ -63,4 +65,8 @@ public interface ApiService {
             @Query("limit") int limit,
             @Body Map<String, Object> filter
     );
+
+    @POST("/api/v1/auth/register")
+    Call<ApiResponseObject<RegisterRequest>> registerUser(@Body RegisterRequest userRequest);
+
 }

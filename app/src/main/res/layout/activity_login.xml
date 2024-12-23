@@ -72,6 +72,16 @@
             android:text="Login"
             android:textColor="@android:color/white" />
 
+        <!-- Register Navigation Button -->
+        <Button
+            android:id="@+id/register_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/purple_500"
+            android:text="Register"
+            android:textColor="@android:color/white" />
+
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"

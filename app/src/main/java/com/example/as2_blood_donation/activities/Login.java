@@ -59,8 +59,14 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        // Navigate to RegisterActivity
-        registerRedirect.setOnClickListener(view -> startActivity(new Intent(Login.this, Register.class)));
+        // Initialize the register button
+        Button registerButton = findViewById(R.id.register_button);
+
+        // Navigate to the Register activity
+        registerButton.setOnClickListener(view -> {
+            Intent intent = new Intent(Login.this, Register.class);
+            startActivity(intent);
+        });
 
         appTitle.setOnClickListener(view -> finish());
     }

@@ -1,116 +1,97 @@
 package com.example.as2_blood_donation.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.example.as2_blood_donation.MainActivity;
 import com.example.as2_blood_donation.R;
-import com.example.as2_blood_donation.models.Donor;
-import com.example.as2_blood_donation.models.enums.BloodType;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.as2_blood_donation.api.ApiClient;
+import com.example.as2_blood_donation.api.ApiService;
+import com.example.as2_blood_donation.models.ApiResponse;
+import com.example.as2_blood_donation.models.ApiResponseObject;
+import com.example.as2_blood_donation.models.RegisterRequest;
+import com.example.as2_blood_donation.models.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Register extends AppCompatActivity {
-
-    private EditText fullName, email, password, confirmPassword;
-    private Spinner bloodType;
-    private Button registerButton;
-    private TextView loginRedirect;
-
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        // Initialize UI components
+        EditText userName = findViewById(R.id.user_name);
+        EditText firstName = findViewById(R.id.first_name);
+        EditText lastName = findViewById(R.id.last_name);
+        EditText email = findViewById(R.id.email);
+        EditText password = findViewById(R.id.password);
+        Button registerButton = findViewById(R.id.register_button);
+        Spinner roleSpinner = findViewById(R.id.role_spinner);
 
-        // Initialize UI elements
-        fullName = findViewById(R.id.full_name);
-        email = findViewById(R.id.email);
-        password = findViewById(R.id.password);
-        confirmPassword = findViewById(R.id.confirm_password);
-        registerButton = findViewById(R.id.register_button);
-        loginRedirect = findViewById(R.id.login_redirect);
-        bloodType = findViewById(R.id.blood_type);
+        // Define roles
+        String[] roles = {"Donor", "Admin", "Super Admin"};
 
-        // Register button click listener
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        // Create an ArrayAdapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Set adapter to Spinner
+        roleSpinner.setAdapter(adapter);
+
+        // Get selected role (optional)
+        roleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                String fullNameText = fullName.getText().toString();
-                String emailText = email.getText().toString();
-                String passwordText = password.getText().toString();
-                String confirmPasswordText = confirmPassword.getText().toString();
-                String bloodTypeText = bloodType.getSelectedItem().toString();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedRole = roles[position];
+                Log.d("RegisterActivity", "Selected Role: " + selectedRole);
+            }
 
-                if (TextUtils.isEmpty(fullNameText) || TextUtils.isEmpty(emailText) ||
-                        TextUtils.isEmpty(passwordText) || TextUtils.isEmpty(confirmPasswordText)) {
-                    Toast.makeText(Register.this, "All fields are required", Toast.LENGTH_SHORT).show();
-                } else if (!passwordText.equals(confirmPasswordText)) {
-                    Toast.makeText(Register.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                } else {
-                    registerUser(emailText, passwordText, fullNameText, bloodTypeText);
-                }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
             }
         });
+        // Set up register button click
+        registerButton.setOnClickListener(view -> {
+            String user = userName.getText().toString().trim();
+            String first = firstName.getText().toString().trim();
+            String last = lastName.getText().toString().trim();
+            String emailInput = email.getText().toString().trim();
+            String pass = password.getText().toString().trim();
 
-        // Login redirect click listener
-        loginRedirect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-    }
-    private void registerUser(String email, String password, String name, String bloodType) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
+            // Call the register API
+            ApiService apiService = ApiClient.getApiClient().create(ApiService.class);
+            RegisterRequest userRequest = new RegisterRequest(user, first, last, emailInput, pass, 1, "0834086256", 100, "A",  "donor");
 
-                        if (user != null) {
-                            String uID = user.getUid();
-                            Donor donorDocument = new Donor(uID, name, name, email, password, bloodType, false);
-
-                            // Save Donor to Firestore
-                            db.collection("donors").document(uID)
-                                    .set(donorDocument)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("Firestore", "Donor document created successfully!");
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Firestore", "Error creating Donor document", e);
-                                    });
-                        }
-                        Toast.makeText(Register.this, "Registration successful", Toast.LENGTH_SHORT).show();
-
-                        // Navigate back to MainActivity
-                        Intent intent = new Intent(Register.this, Login.class);
-                        startActivity(intent);
-                        finish();
+            apiService.registerUser(userRequest).enqueue(new Callback<ApiResponseObject<RegisterRequest>>() {
+                @Override
+                public void onResponse(Call<ApiResponseObject<RegisterRequest>> call, Response<ApiResponseObject<RegisterRequest>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(Register.this, "Registered successfully!", Toast.LENGTH_SHORT).show();
+                        finish(); // Navigate back to login
                     } else {
-                        Toast.makeText(Register.this, "Registration failed:", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Register.this, "Registration failed.", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponseObject<RegisterRequest>> call, Throwable t) {
+                    Toast.makeText(Register.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+        });
     }
 }
