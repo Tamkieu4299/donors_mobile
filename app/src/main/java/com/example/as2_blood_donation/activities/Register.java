@@ -116,6 +116,7 @@ public class Register extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ApiResponseObject<RegisterRequest>> call, Throwable t) {
+                    Log.d("error", t.getMessage());
                     Toast.makeText(Register.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

@@ -110,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter latitude"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal|numberSigned" />
 
             <!-- Longitude -->
             <TextView
@@ -125,7 +125,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter longitude"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal|numberSigned" />
 
             <!-- Submit Button -->
             <Button
